@@ -1,1 +1,2 @@
-# blog-posts
+# Blog-Posts
+Posts for blog
