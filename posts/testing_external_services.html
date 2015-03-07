@@ -29,7 +29,7 @@ class ZippyEnvironment
     if account.errors.empty?
       @account_ids << account.id
     else
-      raise "Failed to create account due to #{account.errors.inspect}"
+      raise "Failed to create: #{account.errors.inspect}"
     end
 
     account
@@ -49,20 +49,25 @@ class ZippyEnvironment
       failed_deletions << id unless success
     end
 
-    raise "Failed to delete accounts #{failed_deletions.inspect}" unless failed_deletions.empty?
+    if failed_deletions.present?
+      raise "Failed to delete: #{failed_deletions.inspect}"
+    end
   end
 end
 </pre>
 
 <p>
-  Then I could use the <code>ZippyEnvironment</code> in my Capybara tests to ensure cleanup.
+  Then I can use the <code>ZippyEnvironment</code> in my Capybara tests to ensure cleanup.
 </p>
 
 <pre>
 describe "Some feature" do
   it "behaves as expected" do
     ZippyEnvironment.new do |zippy|
-      account = zippy.create_account(name: "Pat", email: "pat@example.com")
+      account = zippy.create_account(
+        name: "Pat",
+        email: "pat@example.com"
+      )
 
       # test your feature here
     end
