@@ -3,7 +3,7 @@
   <a href="https://github.com/yeoman/generator-angular">Yeoman angular generator</a>
   and is deployed to <a href="https://pages.github.com">GitHub Pages</a>. The
   <a href="https://github.com/tygern/gistblog">source repo</a> is hosted on GitHub, and the
-  post are hosted in a
+  posts are hosted in a
   <a href="https://github.com/tygern/blog-posts"></a>separate repository.
 </p>
 
@@ -22,7 +22,8 @@
 </p>
 
 <pre>
-git remote add ghpages https://github.com/[USERNAME]/[USERNAME].github.io.git
+git remote add ghpages \
+  https://github.com/[USERNAME]/[USERNAME].github.io.git
 git add .
 git commit -m "Initial deploy to GitHub Pages"
 git subtree push --prefix dist gh-pages master
