@@ -1,0 +1,78 @@
+<p>
+  When working on web projects it is often necessary to integrate with an external service,
+  such as Stripe or Twitter. It is important to be able to integration test these services
+  so that we can be confident that our integrations are working. While many web services
+  provide testing environments, it is easy to clutter our integrations when we are running
+  test, development, acceptance, staging, and production environments.
+</p>
+
+<p>
+  I've developed a pattern that I like to use in a Capybara test suite to handle testing
+  external services and facilitating the cleanup. Suppose we are integrating with
+  a (ficticious) zervice called Zippy, which manages our users' accounts, using a
+  <code>Zippy</code> gem. I'd start by putting the following class in
+  <code>spec/support</code>
+</p>
+
+<pre>
+class ZippyEnvironment
+  def initialize
+    @account_ids = []
+    yield self
+  ensure
+    clean_up
+  end
+
+  def create_account(data)
+    account = Zippy::Account.create(data)
+
+    if account.errors.empty?
+      @account_ids << account.id
+    else
+      raise "Failed to create account due to #{account.errors.inspect}"
+    end
+
+    account
+  end
+
+  private
+
+  def clean_up
+    delete_accounts
+  end
+
+  def delete_accounts
+    failed_deletions = []
+
+    @account_ids.each do |id|
+      success = Zippy::Account.delete(id)
+      failed_deletions << id unless success
+    end
+
+    raise "Failed to delete accounts #{failed_deletions.inspect}" unless failed_deletions.empty?
+  end
+end
+</pre>
+
+<p>
+  Then I could use the <code>ZippyEnvironment</code> in my Capybara tests to ensure cleanup.
+</p>
+
+<pre>
+describe "Some feature" do
+  it "behaves as expected" do
+    ZippyEnvironment.new do |zippy|
+      account = zippy.create_account(name: "Pat", email: "pat@example.com")
+
+      # test your feature here
+    end
+  end
+end
+</pre>
+
+<p>
+  As long as I put my test code within the <code>ZippyEnvironment</code> block, I'm assured
+  that I have access to my Zippy user and that the user will be removed when the test
+  is completed. Note that since we are using <code>ensure</code> we are assured that
+  users will be deleted even if the test fails or if an exception is raised.
+</p>
