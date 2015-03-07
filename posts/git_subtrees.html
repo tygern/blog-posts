@@ -1,0 +1,50 @@
+<p>
+  This blog was created using the
+  <a href="https://github.com/yeoman/generator-angular">Yeoman angular generator</a>
+  and is deployed to <a href="https://pages.github.com">GitHub Pages</a>. The
+  <a href="https://github.com/tygern/gistblog">source repo</a> is hosted on GitHub, and the
+  post are hosted in a
+  <a href="https://github.com/tygern/blog-posts"></a>separate repository.
+</p>
+
+<p>
+  In order to take advantage of Grunt asset concatination and minification I didn't want
+  to serve the entire source on GitHub Pages, but rather only serve content in the
+  <code>/dist</code> subdirectory of the repo. To accomplish this, I pushed a
+  <strong>git subtree</strong> of my main repo to my
+  <a href="https://github.com/tygern/tygern.github.io">GitHub Pages repo</a>.
+</p>
+
+<p>
+  Before doing this, make sure your <code>/dist</code> directory (or wherever your
+  build site is located) is not in your <code>.gitignore</code> file, and that you have
+  created a <em>username</em>.github.io repository.
+</p>
+
+<pre>
+git remote add ghpages https://github.com/[USERNAME]/[USERNAME].github.io.git
+git add .
+git commit -m "Initial deploy to GitHub Pages"
+git subtree push --prefix dist gh-pages master
+</pre>
+
+<p>
+  This method of deploying a subfolder using git might also be useful for heroku deploys
+  where the server and webclient live in the same repo, but are deployed separately.
+</p>
+
+<pre>
+my_application/
+  server/
+  client/
+</pre>
+
+<p>
+  Many heroku buildpacks require your app to be located in the root of your repository,
+  which is a problem if your repository also contains your webclient. This problem could
+  easily be solved by deploying a git subtree to your heroku remote.
+</p>
+
+<pre>
+git subtree push --prefix server heroku master
+</pre>

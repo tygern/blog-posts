@@ -1,2 +1,2 @@
 # Blog-Posts
-Posts for blog
+Posts for [my blog](http://tygern.github.io).
