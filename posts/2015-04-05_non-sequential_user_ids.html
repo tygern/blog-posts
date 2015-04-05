@@ -1,0 +1,62 @@
+<p>
+  Many web applications expose database ids of domain objects in their urls as a way to easily access
+  these objects. Most web frameworks default to using sequential ids, which can result in exposing
+  sensitive business data, such as total number of users.
+</p>
+
+<p>
+  Using UUIDs is one way to solve this problem, but it is often convenient for ids to be short and easily
+  pronounceable. We can use the following method to produce 10 digit non-sequential numbers which have the
+  advantage of being pronounceable. Let's start by creating a sequence.
+</p>
+
+<pre>
+CREATE SEQUENCE id_seq;
+</pre>
+
+<p>
+  We'll use the fact that if <code>p</code> is a prime number, then <code>a % p</code> is equal to
+  <code>b % p</code> if and only if <code>a</code> and <code>b</code> are equal. A quick search tells us that
+  <code>999999937</code> is the largest 10 digit prime, and we can pick another pair of large numbers,
+  say <code>7369712273</code> and <code>1365089121</code> to generate a series of non-sequential numbers.
+</p>
+
+<pre>
+CREATE FUNCTION fetch_id(text) RETURNS bigint AS
+  'select 7369712273 * nextval($1) + 1365089121 % 999999937;'
+  LANGUAGE SQL
+  IMMUTABLE
+  RETURNS NULL ON NULL INPUT;
+</pre>
+
+<p>
+  Note that the numbers generated but this function are not truly random, so this might not be the best way
+  to generate ids for extremely sensitive information. Now we can create our users table.
+</p>
+
+<pre>
+CREATE TABLE users
+  (
+    id BIGINT NOT NULL DEFAULT fetch_id('id_seq'),
+    email VARCHAR
+  );
+</pre>
+
+<p>
+  If we insert a few users into our table, we see that we end up with a nice series of non-sequential ids.
+</p>
+
+<pre>
+INSERT INTO users (email) VALUES ('test1@example.com');
+INSERT INTO users (email) VALUES ('test2@example.com');
+INSERT INTO users (email) VALUES ('test3@example.com');
+</pre>
+
+<pre>
+SELECT * FROM USERS;
+     id      |       email
+-------------+--------------------
+  7734801457 | test1@example.com
+ 15104513730 | test2@example.com
+ 22474226003 | test3@example.com
+</pre>
