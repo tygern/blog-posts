@@ -1,0 +1,91 @@
+<p>
+  When developing a web application it is crucial to be able to efficiently click-test.
+  Even with a comprehensive test suite, click-testing edge cases is a useful tool when
+  driving out a feature. However, click-testing can often be time consuming, especially
+  when a complex set of objects must be created to test the desired feature. To help
+  speed thing up, I like to create scripts in javascript to automate as much of this
+  process as possible.
+</p>
+
+<p>
+  User signup is often a bottleneck in click-testing. This step often requires inputting
+  a large amount information, some of which cannot conflict with other users' information.
+  In these situations I like to use timestamps to ensure uniqueness, and the browser's
+  local storage to keep track of created users.
+</p>
+
+<pre>
+var timestamp = (new Date()).getTime();
+var username = 'user-' + timestamp;
+
+var users = localStorage.getItem("users");
+
+if (users) {
+  users = users + "," + username;
+} else {
+  users = username;
+}
+
+localStorage.setItem("users", users);
+
+document.getElementById('username').value = username;
+document.getElementById('password').value = 'testing123';
+document.getElementById('email').value = userName + '@example.com';
+
+document.getElementById('firstName').value = 'Test';
+document.getElementById('lastName').value = 'User';
+
+document.getElementById('submitButton').focus();
+</pre>
+
+<p>
+  We see that the inclusion of the timestamp in the username and email ensure that our created
+  user is unique, and that our user is persisted in a users string in local storage. Now if we
+  want to log in as our created user we can use the following script.
+</p>
+
+<pre>
+var users = localStorage.getItem("users");
+
+if (users) {
+  username = users.split(",").slice(-1)[0];
+  document.getElementById('username').value = username;
+  document.getElementById('password').value = 'testing123';
+
+  document.getElementById('submitButton').focus();
+}
+</pre>
+
+<p>
+  To see a list of users that we've created we can run,
+</p>
+
+<pre>
+var users = localStorage.getItem("users");
+
+if (users) {
+  users = users.split(",");
+} else {
+  users = "no users stored";
+}
+
+console.log(users);
+</pre>
+
+<p>
+  and to delete all create users we can run,
+</p>
+
+<pre>
+  localStorage.removeItem("users");
+</pre>
+
+<p>
+  Each of these scrips can be added to Chrome as a bookmark by collapsing the script to one
+  line and appending with <code>javescript:</code>. This way we can create a Chrome profile
+  for our applicaiton and share scripts between developers. We can make these scripts even
+  easier to call by creating a search engine (Chrome allows search engines to be called by
+  shortcuts in the location bar). Simply paste the same url from the bookmark into the search
+  engine url, and type a shortcut into the keyword field. Then we can run our scripts without
+  taking our hands off the keyboard.
+</p>
